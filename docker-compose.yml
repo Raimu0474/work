@@ -1,0 +1,38 @@
+version: '3'
+services: 
+  rails:
+    build: 
+      dockerfile: docker/rails/Dockerfile
+      context: .
+    command: bundle exec rails s -p 3000 -b 0.0.0.0
+    volumes:
+      - .:/app:z
+      - bundler-data:/app/vendor/bundle
+      - bundle:/app/.bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - "DATABASE_HOST=db"
+      - "DATABASE_USER=postgres"
+      - "DATABASE_PORT=5432"
+      - "DATABASE_PASSWORD=local_postgres"
+  db:
+    image: postgres:10.5
+    volumes:
+      - db-data:/var/lib/postgresql/data:z
+    environment:
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=local_postgres"
+    ports:
+      - "5432:5432"
+    expose:
+      - "5432"
+volumes:
+  bundler-data:
+    driver: local
+  db-data:
+    driver: local
+  bundle:
+    driver: local
